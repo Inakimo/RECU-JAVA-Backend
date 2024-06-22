@@ -1,5 +1,12 @@
 package com.example.uade.tpo.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.uade.tpo.Utils.Mapper;
 import com.example.uade.tpo.dtos.request.ChangeRoleRequestDto;
 import com.example.uade.tpo.dtos.request.UserRequestDto;
@@ -7,12 +14,6 @@ import com.example.uade.tpo.dtos.response.UserResponseDto;
 import com.example.uade.tpo.entity.Role;
 import com.example.uade.tpo.entity.User;
 import com.example.uade.tpo.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -20,8 +21,13 @@ public class UserService {
     @Autowired
     private IUserRepository userRepository;
 
-    public List<UserResponseDto> getUsers() {
-        return userRepository.findAll().stream().map(Mapper::convertToUserResponseDto).collect(Collectors.toList());
+    public List<UserResponseDto> getUsers(long userId) {
+        if (isAdmin(userId)) {
+            return userRepository.findAll().stream().map(Mapper::convertToUserResponseDto).collect(Collectors.toList());
+        }else{
+            return null;
+        }
+        
     }
 
     public Optional<UserResponseDto> getUserById(Long userId) {
@@ -54,13 +60,35 @@ public class UserService {
             return Mapper.convertToUserResponseDto(userRepository.save(user));
         }).orElse(null);
     }
+    
 
-    public Boolean deleteUser(Long userId) {
-        if (userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
+    public boolean isAdmin(Long userId){
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()){
+            return false;
+        }
+
+        User user = userOptional.get();
+        if(user.getRole() == Role.ROLE_ADMIN){
             return true;
         }
+
         return false;
+    }
+
+
+    public Boolean deleteUser(Long adminID,Long userId) {
+        Optional<User> admin = userRepository.findById(adminID);
+        if (admin.get().getRole().equals(Role.ROLE_ADMIN)){
+            if (userRepository.existsById(userId)) {
+                userRepository.deleteById(userId);
+                return true;
+            }
+            return false;
+        }else{
+            return false;
+        }
+        
     }
 
     public void changeRole(ChangeRoleRequestDto request) {

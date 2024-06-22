@@ -1,5 +1,13 @@
 package com.example.uade.tpo.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.uade.tpo.Utils.Mapper;
 import com.example.uade.tpo.dtos.request.ProductRequestDto;
 import com.example.uade.tpo.dtos.response.ProductResponseDto;
@@ -10,13 +18,6 @@ import com.example.uade.tpo.entity.User;
 import com.example.uade.tpo.repository.ICategoryRepository;
 import com.example.uade.tpo.repository.IProductRepository;
 import com.example.uade.tpo.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -27,9 +28,16 @@ public class ProductService {
     private IUserRepository userRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ICategoryRepository categoryRepository;
 
-    public List<ProductResponseDto> getAllProducts() {
+    public List<ProductResponseDto> getAllProducts(long adminId) {
+
+        if(!userService.isAdmin(adminId)){
+            return null;
+        }
         return productRepository.findAll().stream().map
                 (Mapper::convertToProductResponseDto).collect(Collectors.toList());
     }
@@ -60,5 +68,40 @@ public class ProductService {
         return null; //No se encontro usuario con ese id
     }
 
+    public void deleteProduct(Long productId,Long adminId){
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+
+        if(userService.isAdmin(adminId)){
+            if (optionalProduct.isPresent()) {
+                Product product = optionalProduct.get();
+                productRepository.delete(product);
+            }
+        }
+
+        
+    }
+
+    
+    public ProductResponseDto updateProduct(Long userId,Long productId, ProductRequestDto productDetails){
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+
+        if (userService.isAdmin(userId)) {
+            if (optionalProduct.isPresent()) {
+                Product product = optionalProduct.get();
+                product.setName(productDetails.getName());
+                product.setDescription(productDetails.getDescription());
+                product.setBrand(productDetails.getBrand());
+                product.setPrice(productDetails.getPrice());
+                Product updatedProduct = productRepository.save(product);
+    
+                return Mapper.convertToProductResponseDto(updatedProduct);
+            
+        }
+    } return null;
 
 }
+
+}
+
+
+

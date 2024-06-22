@@ -42,9 +42,9 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
-    @PostMapping("/change_role")
-    public ResponseEntity<Void> changeRole(@RequestBody ChangeRoleRequestDto request) {
-        userService.changeRole(request);
+    @PostMapping("/change_role/{adminId}")
+    public ResponseEntity<Void> changeRole(@PathVariable long adminId,@RequestBody ChangeRoleRequestDto request) {
+        userService.changeRole(adminId,request);
         return ResponseEntity.ok().build();
     }
 

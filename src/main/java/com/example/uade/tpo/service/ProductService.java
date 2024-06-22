@@ -32,7 +32,7 @@ public class ProductService {
     @Autowired
     private ICategoryRepository categoryRepository;
 
-    public List<ProductResponseDto> getAllProducts(long adminId) {
+    public List<ProductResponseDto> getAllProducts(long adminId) { // Mostrar lista de productos
 
         if(!userService.isAdmin(adminId)){
             return null;
@@ -41,7 +41,7 @@ public class ProductService {
                 (Mapper::convertToProductResponseDto).collect(Collectors.toList());
     }
 
-    public ProductResponseDto createProduct(Long userId, ProductRequestDto productDto) {
+    public ProductResponseDto createProduct(Long userId, ProductRequestDto productDto) { //Crear producto nuevo
         Product product = new Product();
         Optional<User> user = userRepository.findById(userId);
         
@@ -69,7 +69,7 @@ public class ProductService {
         return null; //No se encontro usuario con ese id
     }
 
-    public void deleteProduct(Long productId,Long adminId){
+    public void deleteProduct(Long productId,Long adminId){ //Eliminar producto
         Optional<Product> optionalProduct = productRepository.findById(productId);
 
         if(userService.isAdmin(adminId)){
@@ -83,7 +83,7 @@ public class ProductService {
     }
 
     
-    public ProductResponseDto updateProduct(Long userId,Long productId, ProductRequestDto productDetails){
+    public ProductResponseDto updateProduct(Long userId,Long productId, ProductRequestDto productDetails){ //Actualizar datos de producto
         Optional<Product> optionalProduct = productRepository.findById(productId);
 
         if (userService.isAdmin(userId)) {

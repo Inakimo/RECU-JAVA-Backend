@@ -25,7 +25,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/get/{adminId}")
+    @GetMapping("/get/{adminId}") //Get products
     public ResponseEntity<List<ProductResponseDto>> getAllProducts(@PathVariable Long adminId) {
         List<ProductResponseDto> products = productService.getAllProducts(adminId);
         return new ResponseEntity<>(products, HttpStatus.OK);
@@ -40,13 +40,13 @@ public class ProductController {
         return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{productId}/{adminId}")
+    @DeleteMapping("/{productId}/{adminId}") //Delete Products
     public ResponseEntity<ProductResponseDto> deleteProduct(@PathVariable long productId, @PathVariable long adminId){
         productService.deleteProduct(productId,adminId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/{userId}/{productId}")
+    @PutMapping("/{userId}/{productId}") // Update Products
     public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable long userId,@PathVariable long productId , @RequestBody ProductRequestDto productDto) {
         
         ProductResponseDto updatedProduct =  productService.updateProduct(userId,productId, productDto);

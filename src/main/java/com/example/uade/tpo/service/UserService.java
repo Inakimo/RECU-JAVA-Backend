@@ -21,7 +21,7 @@ public class UserService {
     @Autowired
     private IUserRepository userRepository;
 
-    public List<UserResponseDto> getUsers(long userId) {
+    public List<UserResponseDto> getUsers(long userId) { //Obtener lista de usuarios
         if (isAdmin(userId)) {
             return userRepository.findAll().stream().map(Mapper::convertToUserResponseDto).collect(Collectors.toList());
         }else{
@@ -30,11 +30,11 @@ public class UserService {
         
     }
 
-    public Optional<UserResponseDto> getUserById(Long userId) {
+    public Optional<UserResponseDto> getUserById(Long userId) { //Buscar usuario por id
         return userRepository.findById(userId).map(Mapper::convertToUserResponseDto);
     }
 
-    public UserResponseDto createUser(UserRequestDto userDto) {
+    public UserResponseDto createUser(UserRequestDto userDto) { //Crear usuario
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
             return null;
         }
@@ -47,7 +47,7 @@ public class UserService {
         return Mapper.convertToUserResponseDto(userRepository.save(user));
     }
 
-    public UserResponseDto updateUser(Long userId, UserRequestDto userDetails) {
+    public UserResponseDto updateUser(Long userId, UserRequestDto userDetails) { // Actualizar datos de usuario
         if (userRepository.findByEmail(userDetails.getEmail()).isPresent()) {
             return null;
         }
@@ -62,7 +62,7 @@ public class UserService {
     }
     
 
-    public boolean isAdmin(Long userId){
+    public boolean isAdmin(Long userId){ //Verificar si el usuario es administrador
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()){
             return false;
@@ -76,7 +76,7 @@ public class UserService {
         return false;
     }
 
-    public boolean isSeller(Long userId){
+    public boolean isSeller(Long userId){ // Verificar si el usuario es vendedor
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()){
             return false;
@@ -91,7 +91,7 @@ public class UserService {
     }
 
 
-    public Boolean deleteUser(Long adminID,Long userId) {
+    public Boolean deleteUser(Long adminID,Long userId) { //Eliminar Usuario
         Optional<User> admin = userRepository.findById(adminID);
         if (admin.get().getRole().equals(Role.ROLE_ADMIN)){
             if (userRepository.existsById(userId)) {
@@ -105,10 +105,15 @@ public class UserService {
         
     }
 
-    public void changeRole(ChangeRoleRequestDto request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.setRole(Role.valueOf(request.getNewRole()));
-        userRepository.save(user);
+    public void changeRole(Long id,ChangeRoleRequestDto request) { //Cambiar roles del usuario
+
+        if(isAdmin(id)){
+            User user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            user.setRole(Role.valueOf(request.getNewRole()));
+            userRepository.save(user);
+        }
+
+        
     }
 }

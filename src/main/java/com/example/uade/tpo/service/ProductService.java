@@ -13,7 +13,6 @@ import com.example.uade.tpo.dtos.request.ProductRequestDto;
 import com.example.uade.tpo.dtos.response.ProductResponseDto;
 import com.example.uade.tpo.entity.Category;
 import com.example.uade.tpo.entity.Product;
-import com.example.uade.tpo.entity.Role;
 import com.example.uade.tpo.entity.User;
 import com.example.uade.tpo.repository.ICategoryRepository;
 import com.example.uade.tpo.repository.IProductRepository;
@@ -45,15 +44,17 @@ public class ProductService {
     public ProductResponseDto createProduct(Long userId, ProductRequestDto productDto) {
         Product product = new Product();
         Optional<User> user = userRepository.findById(userId);
+        
+        if(!userService.isAdmin(userId) && !userService.isSeller(userId) ){
+            return null;
+        }
+        
         if(user.isPresent()){
             product.setName(productDto.getName());
             product.setDescription(productDto.getDescription());
             product.setBrand(productDto.getBrand());
             product.setPrice(productDto.getPrice());
             product.setStock(productDto.getStock());
-            if(!user.get().getRole().equals(Role.ROLE_SELLER)){
-                user.get().setRole(Role.ROLE_SELLER);
-            }
             product.setSeller(user.get());
 
             List<Category> categories = new ArrayList<>();

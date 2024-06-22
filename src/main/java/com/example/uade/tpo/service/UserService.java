@@ -76,6 +76,20 @@ public class UserService {
         return false;
     }
 
+    public boolean isSeller(Long userId){
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()){
+            return false;
+        }
+
+        User user = userOptional.get();
+        if(user.getRole() == Role.ROLE_SELLER){
+            return true;
+        }
+
+        return false;
+    }
+
 
     public Boolean deleteUser(Long adminID,Long userId) {
         Optional<User> admin = userRepository.findById(adminID);
